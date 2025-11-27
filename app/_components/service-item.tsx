@@ -3,16 +3,26 @@
 import Image from "next/image";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
-import { Sheet, SheetContent, SheetHeader, SheetTrigger } from "./ui/sheet";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetFooter,
+  SheetHeader,
+  SheetTrigger,
+} from "./ui/sheet";
 import { Calendar } from "./ui/calendar";
 import { ptBR } from "date-fns/locale/pt-BR";
 import { useState } from "react";
-import { format } from "date-fns";
-import { Barbershop, BarbershopService } from "@prisma/client"
+import { format, set } from "date-fns";
+import { BarbershopService } from "@prisma/client";
+import { useSession } from "next-auth/react";
+import { createBooking } from "../_actions/create_booking";
+import { toast } from "sonner";
 
 interface ServiceItemProps {
   service: BarbershopService;
-  nameBarberShop: string
+  nameBarberShop: string;
 }
 
 const TIME_LIST = [
@@ -40,7 +50,9 @@ const TIME_LIST = [
 ];
 
 const ServiceItem = ({ service, nameBarberShop }: ServiceItemProps) => {
-  console.log('barbershop', nameBarberShop)
+  console.log("barbershop", nameBarberShop);
+  const { data } = useSession();
+  console.log("data,", data?.user);
   const [selectDay, setSelectDay] = useState<Date | undefined>(undefined);
   const [selectTime, setSelectTime] = useState<string | undefined>(undefined);
 
@@ -50,6 +62,30 @@ const ServiceItem = ({ service, nameBarberShop }: ServiceItemProps) => {
 
   const handlerTimeSelect = (time: Date | undefined) => {
     setSelectTime(time);
+  };
+
+  const handlerCreateBooking = async () => {
+    if (!selectDay || !selectTime) {
+      return;
+    }
+    try {
+      const hour = selectTime?.split(":")[0];
+      const minute = selectTime?.split(":")[1];
+      const newDate = set(selectDay, {
+        minutes: Number(minute),
+        hours: Number(hour),
+      });
+      console.log("newDate", newDate);
+      await createBooking({
+        serviceId: service.id,
+        userId: data?.user?.id,
+        date: newDate,
+      });
+      toast.success("Reserva criada com sucesso!");
+    } catch (error) {
+      console.log("error", error);
+      toast.error("Erro ao criar reserva!");
+    }
   };
 
   return (
@@ -78,13 +114,15 @@ const ServiceItem = ({ service, nameBarberShop }: ServiceItemProps) => {
               </p>
 
               <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="secondary" size="sm">
-                    Reservar
-                  </Button>
-                </SheetTrigger>
+                {data?.user && (
+                  <SheetTrigger asChild>
+                    <Button variant="secondary" size="sm">
+                      Reservar
+                    </Button>
+                  </SheetTrigger>
+                )}
 
-                <SheetContent className="px-0">
+                <SheetContent className="overflow-y-auto px-0">
                   <SheetHeader>Fazer Reserva</SheetHeader>
 
                   <div>
@@ -160,13 +198,24 @@ const ServiceItem = ({ service, nameBarberShop }: ServiceItemProps) => {
                           <p className="text-sm">{selectTime}</p>
                         </div>
 
-                         <div className="flex justify-between items-center">
+                        <div className="flex justify-between items-center">
                           <h2 className="text-sm text-gray-400">Barbearia</h2>
                           <p className="text-sm">{nameBarberShop}</p>
                         </div>
                       </CardContent>
                     </Card>
                   )}
+
+                  <SheetFooter className="px-5">
+                    <SheetClose asChild>
+                      <Button
+                        disabled={!selectDay || !selectTime}
+                        onClick={handlerCreateBooking}
+                      >
+                        Confirmar
+                      </Button>
+                    </SheetClose>
+                  </SheetFooter>
                 </SheetContent>
               </Sheet>
             </div>
