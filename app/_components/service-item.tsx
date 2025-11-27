@@ -13,12 +13,13 @@ import {
 } from "./ui/sheet";
 import { Calendar } from "./ui/calendar";
 import { ptBR } from "date-fns/locale/pt-BR";
-import { useState } from "react";
-import { format, set } from "date-fns";
-import { BarbershopService } from "@prisma/client";
+import { useEffect, useState } from "react";
+import { format, isPast, isToday, set } from "date-fns";
+import { BarbershopService , Booking} from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { createBooking } from "../_actions/create_booking";
 import { toast } from "sonner";
+import { getBookings } from "../_actions/get-booking";
 
 interface ServiceItemProps {
   service: BarbershopService;
@@ -49,12 +50,49 @@ const TIME_LIST = [
   "18:00",
 ];
 
+interface GetTimeListProps {
+  bookings: Booking[]
+  selectedDay: Date
+}
+
+const getTimeList = ({ bookings, selectedDay }: GetTimeListProps) => {
+  return TIME_LIST.filter((time) => {
+    const hour = Number(time.split(":")[0])
+    const minutes = Number(time.split(":")[1])
+
+    const timeIsOnThePast = isPast(set(new Date(), { hours: hour, minutes }))
+    if (timeIsOnThePast && isToday(selectedDay)) {
+      return false
+    }
+
+    const hasBookingOnCurrentTime = bookings.some(
+      (booking) =>
+        booking.date.getHours() === hour &&
+        booking.date.getMinutes() === minutes,
+    )
+    if (hasBookingOnCurrentTime) {
+      return false
+    }
+    return true
+  })
+}
+
 const ServiceItem = ({ service, nameBarberShop }: ServiceItemProps) => {
-  console.log("barbershop", nameBarberShop);
   const { data } = useSession();
-  console.log("data,", data?.user);
   const [selectDay, setSelectDay] = useState<Date | undefined>(undefined);
   const [selectTime, setSelectTime] = useState<string | undefined>(undefined);
+  const [dayBooking, setDayBooking] = useState<Booking[]>([]); 
+  
+  useEffect(() =>{
+    const fetch = async () =>{
+      if(!selectDay) return;
+     const bookings = await getBookings({date: selectDay!,  serviceId: service.id});
+     setDayBooking(bookings);
+    }
+    fetch();
+
+  }, [selectDay, service.id]);
+  console.log("dayBooking", dayBooking);
 
   const handlerDateSelect = (date: Date | undefined) => {
     setSelectDay(date);
