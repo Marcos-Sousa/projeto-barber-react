@@ -22,22 +22,11 @@ import Link from "next/link";
 import { Button } from "./ui/button";
 import { signOut, useSession } from "next-auth/react";
 
-import {
-  Dialog,
-  DialogHeader,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-  DialogTrigger,
-} from "./ui/dialog";
-import { signIn } from "next-auth/react";
+import { Dialog, DialogTrigger } from "./ui/dialog";
+import SignInDialog from "./sign-in-dialog";
 
 const SidebarButton = () => {
   const { data } = useSession();
-
-  const handlerLoginWithGoogle = async () => {
-    await signIn("google");
-  };
 
   const handlerLogoutWithGoogle = async () => {
     await signOut("google");
@@ -81,23 +70,7 @@ const SidebarButton = () => {
                       <LogInIcon></LogInIcon>
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="w-[90%]">
-                    <DialogHeader>
-                      <DialogTitle>Faça seu login</DialogTitle>
-                      <DialogDescription>
-                        Realize seu cadastro na plataforma!
-                      </DialogDescription>
-                    </DialogHeader>
-                    <Button variant="outline" onClick={handlerLoginWithGoogle}>
-                      <Image
-                        alt="google"
-                        width={18}
-                        height={18}
-                        src="/google.svg"
-                      ></Image>{" "}
-                      Google
-                    </Button>
-                  </DialogContent>
+                  <SignInDialog></SignInDialog>
                 </Dialog>
               </div>
             )}
@@ -114,9 +87,11 @@ const SidebarButton = () => {
             </Link>
           </SheetClose>
 
-          <Button className="gap-2 justify-start" variant="ghost">
+          <Button className="gap-2 justify-start" variant="ghost" asChild>
+            <Link href="/booking">
             <CalendarHeartIcon></CalendarHeartIcon>
             Agendamento
+            </Link>
           </Button>
         </div>
 
@@ -142,17 +117,18 @@ const SidebarButton = () => {
             </SheetClose>
           ))}
         </div>
-
-        <div className="gap-2 float-start flex flex-col py-5">
-          <Button
-            className="justify-content"
-            variant="ghost"
-            onClick={handlerLogoutWithGoogle}
-          >
-            <LogOutIcon width={18} height={18}></LogOutIcon>
-            Sair da conta
-          </Button>
-        </div>
+        {data?.user && (
+          <div className="gap-2 float-start flex flex-col py-5">
+            <Button
+              className="justify-content"
+              variant="ghost"
+              onClick={handlerLogoutWithGoogle}
+            >
+              <LogOutIcon width={18} height={18}></LogOutIcon>
+              Sair da conta
+            </Button>
+          </div>
+        )}
       </SheetContent>
     </Sheet>
   );

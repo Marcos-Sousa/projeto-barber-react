@@ -1,8 +1,19 @@
+import { Prisma } from "@prisma/client";
 import { Avatar, AvatarImage } from "./ui/avatar";
 import { Badge } from "./ui/badge";
 import { Card, CardContent } from "./ui/card";
 
-const BookinkItem = () => {
+interface BookingItemProps {
+  bookinkg: Prisma.BookingGetPayload<{
+    include: {
+      service: {
+        include: { barbershop: true };
+      };
+    };
+  }>;
+}
+
+const BookinkItem = ({ bookinkg }: BookingItemProps) => {
   return (
     <div>
       <h2 className="font-bold mt-6 mb-3 text-xm text-gray-400 ">
@@ -14,12 +25,12 @@ const BookinkItem = () => {
             <Badge className="flex items-center justify-center">
               Confirmado
             </Badge>
-            <h3 className="font-semibold">Corte de Cabelo</h3>
+            <h3 className="font-semibold">{bookinkg?.service.name}</h3>
             <div className="flex flex-items-center gap-2">
               <Avatar className="h-6 w-6">
-                <AvatarImage src="https://utfs.io/f/c97a2dc9-cf62-468b-a851-bfd2bdde775f-16p.png"></AvatarImage>
+                <AvatarImage src={bookinkg.service.barbershop.imageUrl}></AvatarImage>
               </Avatar>
-              <p className="text-sm">Barbearia FSW</p>
+              <p className="text-sm">{bookinkg.service.barbershop.name}</p>
             </div>
           </div>
 
