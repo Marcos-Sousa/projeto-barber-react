@@ -3,7 +3,6 @@ import Header from "../_components/header";
 import { authOptions } from "../_lib/auth";
 import { db } from "../_lib/prisma";
 import { notFound } from "next/navigation";
-import { Key } from "lucide-react";
 import BookinkItem from "../_components/booking-item";
 
 const Bookings = async () => {
@@ -12,25 +11,59 @@ const Bookings = async () => {
   if (!session.user) {
     return notFound();
   }
-  const bookinks = await db.booking.findMany({
+  const ConfirmedBookinks = await db.booking.findMany({
     where: {
       userId: (session.user as any).id,
+      date: {
+        gte: new Date(),
+      },
     },
     include: {
       service: {
         include: { barbershop: true },
       },
     },
+    orderBy: {
+      date: "asc",
+    },
   });
+
+  const concludedBookinks = await db.booking.findMany({
+    where: {
+      userId: (session.user as any).id,
+      date: {
+        lt: new Date(),
+      },
+    },
+    include: {
+      service: {
+        include: { barbershop: true },
+      },
+    },
+    orderBy: {
+      date: "asc",
+    },
+  });
+
   return (
     <div>
       <Header></Header>
 
-      <div className="p-5">
+      <div className="p-5 space-y-5">
         <h1 className="text-xl font-bold">Agendamentos</h1>
 
-        {bookinks.map((booking) => (
-          <BookinkItem key={booking.id} bookinkg={booking}></BookinkItem>
+        <h2 className="font-bold mt-6 mb-3 text-xm text-gray-400 ">
+          Confirmados
+        </h2>
+        {ConfirmedBookinks.map((booking) => (
+          <BookinkItem key={booking.id} booking={booking}></BookinkItem>
+        ))}
+
+        <h2 className="font-bold mt-6 mb-3 text-xm text-gray-400 ">
+          Finalizados
+        </h2>
+        {concludedBookinks.map((booking) => (
+          <BookinkItem key={booking.id} booking={booking}></BookinkItem>
         ))}
       </div>
     </div>

@@ -7,14 +7,37 @@ import { quickSearchOptions } from "./_constants/search";
 import BookinkItem from "./_components/booking-item";
 import Search from "./_components/search";
 import Link from "next/link";
+import { getServerSession } from "next-auth";
+import { authOptions } from "./_lib/auth";
 
 const Home = async () => {
+  const session = await getServerSession(authOptions);
   const barbeshops = await db.barbershop.findMany({});
   const popularsBarbershops = await db.barbershop.findMany({
     orderBy: {
       name: "desc",
     },
   });
+
+  const ConfirmedBookinks = session?.user
+    ? await db.booking.findMany({
+        where: {
+          userId: (session.user as any).id,
+          date: {
+            gte: new Date(),
+          },
+        },
+        include: {
+          service: {
+            include: { barbershop: true },
+          },
+        },
+        orderBy: {
+          date: "asc",
+        },
+      })
+    : [];
+
   return (
     <div>
       <Header></Header>
@@ -50,7 +73,15 @@ const Home = async () => {
             alt="imagem"
           />
         </div>
-        <BookinkItem></BookinkItem>
+
+        <h2 className="font-bold mt-6 mb-3 text-xm text-gray-400 ">
+          Agendamentos
+        </h2>
+        <div className="mt-5 flex overflow-auto  gap-4 [&::-webkit-scrollbar]:hidden">
+          {ConfirmedBookinks.map((booking) => (
+            <BookinkItem key={booking.id} booking={booking}></BookinkItem>
+          ))}
+        </div>
 
         <h2 className="font-bold mt-6 mb-3 text-xm text-gray-400 ">
           Recomendados

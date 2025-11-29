@@ -11,7 +11,7 @@ import {
   SheetHeader,
 } from "./ui/sheet";
 import { Calendar } from "./ui/calendar";
-import { ptBR } from "date-fns/locale/pt-BR";
+  import { ptBR } from "date-fns/locale/pt-BR";
 import { useEffect, useMemo, useState } from "react";
 import { addDays, format, isPast, isToday, set } from "date-fns";
 import { BarbershopService, Booking } from "@prisma/client";
@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { getBookings } from "../_actions/get-booking";
 import SignInDialog from "./sign-in-dialog";
 import { Dialog } from "./ui/dialog";
+import BookingInfo from "./booking-info";
 
 interface ServiceItemProps {
   service: BarbershopService;
@@ -234,38 +235,9 @@ const ServiceItem = ({ service, nameBarberShop }: ServiceItemProps) => {
                   )}
 
                   {selectTime && selectDay && (
-                    <Card className="m-5">
-                      <CardContent className="p-3 space-y-3">
-                        <div className="flex justify-between items-center">
-                          <h2 className="text-lg font-semibold">
-                            {service.name}
-                          </h2>
-                          <p className="text-sm font-bold">
-                            {Intl.NumberFormat("pt-BR", {
-                              style: "currency",
-                              currency: "BRL",
-                            }).format(service.price)}
-                          </p>
-                        </div>
-
-                        <div className="flex justify-between items-center">
-                          <h2 className="text-sm text-gray-400">Data</h2>
-                          <p className="text-sm">
-                            {format(selectDay, "d 'de' MMM", { locale: ptBR })}
-                          </p>
-                        </div>
-
-                        <div className="flex justify-between items-center">
-                          <h2 className="text-sm text-gray-400">Horário</h2>
-                          <p className="text-sm">{selectTime}</p>
-                        </div>
-
-                        <div className="flex justify-between items-center">
-                          <h2 className="text-sm text-gray-400">Barbearia</h2>
-                          <p className="text-sm">{nameBarberShop}</p>
-                        </div>
-                      </CardContent>
-                    </Card>
+                    <div className="m-5">
+                    <BookingInfo nameService={service.name} price={service.price} day={selectDay} time={selectTime} nameBarberShop={nameBarberShop}></BookingInfo>
+                    </div>
                   )}
 
                   <SheetFooter className="px-5">
