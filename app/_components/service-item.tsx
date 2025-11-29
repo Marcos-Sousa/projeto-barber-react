@@ -11,7 +11,7 @@ import {
   SheetHeader,
 } from "./ui/sheet";
 import { Calendar } from "./ui/calendar";
-  import { ptBR } from "date-fns/locale/pt-BR";
+import { ptBR } from "date-fns/locale/pt-BR";
 import { useEffect, useMemo, useState } from "react";
 import { addDays, format, isPast, isToday, set } from "date-fns";
 import { BarbershopService, Booking } from "@prisma/client";
@@ -59,26 +59,25 @@ interface GetTimeListProps {
 
 const getTimeList = ({ bookings, selectedDay }: GetTimeListProps) => {
   return TIME_LIST.filter((time) => {
-    const hour = Number(time.split(":")[0]);
-    const minutes = Number(time.split(":")[1]);
+    const hour = Number(time.split(":")[0])
+    const minutes = Number(time.split(":")[1])
 
-    const timeIsOnThePast = isPast(set(new Date(), { hours: hour, minutes }));
+    const timeIsOnThePast = isPast(set(new Date(), { hours: hour, minutes }))
     if (timeIsOnThePast && isToday(selectedDay)) {
-      return false;
+      return false
     }
 
-    const hasBookingOnCurrentTime = bookings?.some((booking) => {
-      const bookingHour = booking.date.getHours();
-      const bookingMinutes = booking.date.getMinutes();
-
-      return bookingHour === hour && bookingMinutes === minutes;
-    });
+    const hasBookingOnCurrentTime = bookings.some(
+      (booking) =>
+        booking.date.getHours() === hour &&
+        booking.date.getMinutes() === minutes,
+    )
     if (hasBookingOnCurrentTime) {
-      return false;
+      return false
     }
-    return true;
-  });
-};
+    return true
+  })
+}
 
 const ServiceItem = ({ service, nameBarberShop }: ServiceItemProps) => {
   const { data } = useSession();
@@ -147,7 +146,7 @@ const ServiceItem = ({ service, nameBarberShop }: ServiceItemProps) => {
     if (!selectDay) return [];
     return getTimeList({
       bookings: dayBooking,
-      selectDay,
+      selectedDay: selectDay,
     });
   }, [dayBooking, selectDay]);
 
@@ -192,7 +191,7 @@ const ServiceItem = ({ service, nameBarberShop }: ServiceItemProps) => {
                       mode="single"
                       locale={ptBR}
                       selected={selectDay}
-                      disabled={{ before: addDays(new Date(), 1) }}
+                      disabled={{ before: addDays(new Date(), 0) }}
                       onSelect={handlerDateSelect}
                       styles={{
                         head_cell: {
@@ -222,21 +221,33 @@ const ServiceItem = ({ service, nameBarberShop }: ServiceItemProps) => {
 
                   {selectDay && (
                     <div className="flex gap-3 overflow-x-auto border-b border-solid p-5 [&::-webkit-scrollbar]:hidden">
-                      {timeList?.map((time) => (
-                        <Button
-                          key={time}
-                          onClick={() => handlerTimeSelect(time)}
-                          variant={selectTime == time ? "default" : "outline"}
-                        >
-                          {time}
-                        </Button>
-                      ))}
+                      {timeList.length > 0 ? (
+                        timeList?.map((time) => (
+                          <Button
+                            key={time}
+                            onClick={() => handlerTimeSelect(time)}
+                            variant={selectTime == time ? "default" : "outline"}
+                          >
+                            {time}
+                          </Button>
+                        ))
+                      ) : (
+                        <p className="text-xs">
+                          Não há horários disponíveis para este dia.
+                        </p>
+                      )}
                     </div>
                   )}
 
                   {selectTime && selectDay && (
                     <div className="m-5">
-                    <BookingInfo nameService={service.name} price={service.price} day={selectDay} time={selectTime} nameBarberShop={nameBarberShop}></BookingInfo>
+                      <BookingInfo
+                        nameService={service.name}
+                        price={service.price}
+                        day={selectDay}
+                        time={selectTime}
+                        nameBarberShop={nameBarberShop}
+                      ></BookingInfo>
                     </div>
                   )}
 
