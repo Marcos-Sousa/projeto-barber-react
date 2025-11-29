@@ -22,7 +22,6 @@ const BarberShopPage = async ({ params }) => {
     return notFound();
   }
 
-  console.log("barbeshop", barbeshop);
   return (
     <div>
       <div className="relative h-[250px] w-full">
