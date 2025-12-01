@@ -12,7 +12,6 @@ interface SessionUser {
   image?: string | null;
 }
 
-
 const Bookings = async () => {
   const session = await getServerSession(authOptions);
 
