@@ -13,7 +13,7 @@ import {
 import { Calendar } from "./ui/calendar";
 import { ptBR } from "date-fns/locale/pt-BR";
 import { useEffect, useMemo, useState } from "react";
-import { addDays, format, isPast, isToday, set } from "date-fns";
+import { addDays, isPast, isToday, set } from "date-fns";
 import { BarbershopService, Booking } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { createBooking } from "../_actions/create_booking";
