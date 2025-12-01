@@ -12,6 +12,13 @@ import { authOptions } from "./_lib/auth";
 import { ptBR } from "date-fns/locale";
 import { format } from "date-fns";
 
+interface SessionUser {
+  id: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+}
+
 const Home = async () => {
   const session = await getServerSession(authOptions);
   const barbeshops = await db.barbershop.findMany({});
@@ -24,7 +31,7 @@ const Home = async () => {
   const ConfirmedBookinks = session?.user
     ? await db.booking.findMany({
         where: {
-          userId: (session.user as any).id,
+          userId: (session.user as SessionUser).id,
           date: {
             gte: new Date(),
           },
@@ -54,9 +61,9 @@ const Home = async () => {
         </div>
 
         <div className="flex gap-3 mt-6 overflow-x-auto [&::-webkit-scrollbar]:hidden">
-          {quickSearchOptions.map((serch) => (
-            <Link href={`/barbershop?service=${serch.title}`}>
-              <Button key={serch.title} className="gap-2" variant="secondary">
+          {quickSearchOptions.map((serch, index) => (
+            <Link key={index} href={`/barbershop?service=${serch.title}`}>
+              <Button  className="gap-2" variant="secondary">
                 <Image
                   alt={serch.title}
                   src={serch.imageUrl}

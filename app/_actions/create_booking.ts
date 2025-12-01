@@ -9,13 +9,20 @@ interface CreateBookingParams {
   date: Date;
 }
 
+interface SessionUser {
+  id: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+}
+
 export const createBooking = async (params: CreateBookingParams) => {
   const user = await getServerSession(authOptions);
   if (!user) {
     throw new Error("Usuário não autenticado");
   }
   await db.booking.create({
-    data: { ...params, userId: (user.user as any).id },
+    data: { ...params, userId: (user.user as SessionUser).id },
   });
   revalidatePath("/barbershops/[id]");
   revalidatePath("/bookings");

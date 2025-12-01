@@ -4,6 +4,14 @@ import { db } from "./prisma"
 import { Adapter } from "next-auth/adapters"
 import GoogleProvider from "next-auth/providers/google"
 
+interface ExtendedSessionUser {
+  id: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+}
+
+
 export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(db) as Adapter,
   providers: [
@@ -17,7 +25,7 @@ export const authOptions: AuthOptions = {
       session.user = {
         ...session.user,
         id: user.id,
-      } as any
+      } as ExtendedSessionUser
       return session
     },
   },

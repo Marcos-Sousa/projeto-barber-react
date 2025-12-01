@@ -5,15 +5,23 @@ import { db } from "../_lib/prisma";
 import { notFound } from "next/navigation";
 import BookinkItem from "../_components/booking-item";
 
+interface SessionUser {
+  id: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+}
+
+
 const Bookings = async () => {
   const session = await getServerSession(authOptions);
 
-  if (!session.user) {
+  if (!session?.user) {
     return notFound();
   }
   const ConfirmedBookinks = await db.booking.findMany({
     where: {
-      userId: (session.user as any).id,
+      userId: (session.user as SessionUser).id,
       date: {
         gte: new Date(),
       },
@@ -30,7 +38,7 @@ const Bookings = async () => {
 
   const concludedBookinks = await db.booking.findMany({
     where: {
-      userId: (session.user as any).id,
+      userId: (session.user as SessionUser).id,
       date: {
         lt: new Date(),
       },

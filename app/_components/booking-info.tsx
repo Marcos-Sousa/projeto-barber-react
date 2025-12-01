@@ -27,7 +27,7 @@ const BookingInfo = ({
             {Intl.NumberFormat("pt-BR", {
               style: "currency",
               currency: "BRL",
-            }).format(price)}
+            }).format(Number(price))}
           </p>
         </div>
 

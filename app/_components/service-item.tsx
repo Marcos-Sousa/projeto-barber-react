@@ -109,7 +109,7 @@ const ServiceItem = ({ service, nameBarberShop }: ServiceItemProps) => {
     setDayBookings([]);
     setBookingSheetIsOpen(false);
   };
-  const handlerTimeSelect = (time: Date | undefined) => {
+  const handlerTimeSelect = (time: string) => {
     setSelectedTime(time);
   };
 
@@ -172,7 +172,7 @@ const ServiceItem = ({ service, nameBarberShop }: ServiceItemProps) => {
                 {Intl.NumberFormat("pt-BR", {
                   style: "currency",
                   currency: "BRL",
-                }).format(service.price)}
+                }).format(Number(service.price))}
               </p>
 
               <Sheet

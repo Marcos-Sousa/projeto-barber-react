@@ -3,12 +3,18 @@ import ServiceItem from "@/app/_components/service-item";
 import SidebarButton from "@/app/_components/sidebar-button";
 import { Button } from "@/app/_components/ui/button";
 import { db } from "@/app/_lib/prisma";
-import { ChevronLeftIcon, MapPinIcon, MenuIcon, StarIcon } from "lucide-react";
+import { ChevronLeftIcon, MapPinIcon, StarIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-const BarberShopPage = async ({ params }) => {
+interface BarberShopPageProps {
+  params: {
+    id: string;
+  };
+}
+
+const BarberShopPage = async ({ params }: BarberShopPageProps) => {
   const barbeshop = await db.barbershop.findUnique({
     where: {
       id: params.id,
@@ -26,8 +32,8 @@ const BarberShopPage = async ({ params }) => {
     <div>
       <div className="relative h-[250px] w-full">
         <Image
-          alt={barbeshop?.name!}
-          src={barbeshop?.imageUrl!}
+          alt={barbeshop?.name}
+          src={barbeshop?.imageUrl}
           fill
           className="object-cover"
         ></Image>

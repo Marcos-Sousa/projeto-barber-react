@@ -29,7 +29,7 @@ const SidebarButton = () => {
   const { data } = useSession();
 
   const handlerLogoutWithGoogle = async () => {
-    await signOut("google");
+   await signOut({ callbackUrl: "/" });
   };
 
   return (
